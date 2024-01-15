@@ -1,0 +1,2 @@
+chr	start	chr_2	end	SVLEN	category	SVTYPE	orientation	ins_seq	depth	supp_reads	cell_line	clone	sample	region_start	region_end	id
+chr2	173529881	chr2	174271872	741974	Deletion	DEL	+-c	ATAACTTCGTATAATGTAC	4	4	HAP1	C516R	C516R_c11	chr2:173529881	chr2:174271855	1
