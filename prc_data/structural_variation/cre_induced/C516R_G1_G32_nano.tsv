@@ -1,0 +1,3 @@
+chr	start	chr_2	end	SVLEN	category	SVTYPE	orientation	ins_seq	depth	supp_reads	cell_line	clone	sample	region_start	region_end	id
+chr11	63340739	chr9	34764304	0	Translocation	TRAh2h	++t	ATAACTTCGTATAATGTAC	19	9	HAP1	C516R	C516R_G1_G32	chr11:63340739	chr9:34764304	1
+chr11	63340739	chr9	34764287	0	Translocation	TRAt2t	--t	TAACTTCGTATAATGTACATTATACGAAGTTA	19	9	HAP1	C516R	C516R_G1_G32	chr11:63340739	chr9:34764287	2

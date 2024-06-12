@@ -1,0 +1,2 @@
+chr	start	chr_2	end	SVLEN	category	SVTYPE	orientation	ins_seq	depth	supp_reads	cell_line	clone	sample	region_start	region_end	id
+chr5	51308055	chr5	51308055	0	Fold back	FBh2h	++l	TAACTTCGTATAATGTACATTATACGAAGTTA	1	1	HEK293T	HEK293T_F3R	F3R_c12	chr5:51308055	chr5:51308055	1

@@ -1,0 +1,2 @@
+chr	start	chr_2	end	SVLEN	category	SVTYPE	orientation	ins_seq	depth	supp_reads	cell_line	clone	sample	region_start	region_end	id
+chr6	47219381	chr6	47219382	1	Fold back	FBt2t	--l	ATAACTTCGTATAATGTACATTATACGAAGTTAT	13	1	HAP1	C516R	C516R_G1_A71	chr6:47219381	chr6:47219382	1
