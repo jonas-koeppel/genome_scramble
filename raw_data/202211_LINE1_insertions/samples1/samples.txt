@@ -1,0 +1,16 @@
+D2_day0_2_S57_L001_R1_001.fastq.gz
+D2_day10_1_S62_L001_R1_001.fastq.gz
+D2_day10_2_S63_L001_R1_001.fastq.gz
+D2_day16_1_S64_L001_R1_001.fastq.gz
+D2_day16_2_S65_L001_R1_001.fastq.gz
+D2_day2_1_S58_L001_R1_001.fastq.gz
+D2_day2_2_S59_L001_R1_001.fastq.gz
+D2_day7_1_S60_L001_R1_001.fastq.gz
+D2_day7_2_S61_L001_R1_001.fastq.gz
+c12_day0_1_S66_L001_R1_001.fastq.gz
+c12_day2_1_S67_L001_R1_001.fastq.gz
+c12_day2_2_S68_L001_R1_001.fastq.gz
+c12_day2_3_S69_L001_R1_001.fastq.gz
+c12_day4_1_S70_L001_R1_001.fastq.gz
+c12_day4_2_S71_L001_R1_001.fastq.gz
+c12_day4_3_S72_L001_R1_001.fastq.gz

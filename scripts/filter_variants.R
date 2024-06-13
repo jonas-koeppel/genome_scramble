@@ -1,4 +1,4 @@
-# January, 15th, 2024. Jonas Koeppel
+# June, 13th, 2024. Jonas Koeppel
 # This script takes raw variant calls from nanomonsv and performs the filtering steps to derive at the condensed set of variants used in the manuscript
 
 library(VariantAnnotation)
@@ -8,13 +8,14 @@ library(tidyverse)
 library(plyranges)
 library(spgs)
 
-setwd("/path/to/working/directory")
+setwd("/Users/jk24/Library/CloudStorage/OneDrive-Personal/PhD/Scramble/submission/")
 
 rc <- function(x) {toupper(spgs::reverseComplement(x))} # define a quick function to reverse compliment sequences
 chr_sizes <- read_tsv("./input_data/GRCh38.chrom_sizes.txt", col_names = c("tmp", "chr", "end")) %>% mutate(start = 0, supp_reads = 0) %>% filter(chr != "chrY") %>%
   pivot_longer(c(start, end), names_to = "label", values_to = "start") %>% dplyr::select(chr, start, supp_reads) 
 chr_list <- sprintf("chr%s",c(seq(1,22,1), "X", "Y"))
 centromeres <- read_tsv("./input_data/hg38_centromeres.bed", col_names = c("chr", "start", "end", "name")) %>% group_by(chr) %>% summarise(start = min(start), end = min(end))
+missing_variants <- read_tsv("/Users/jk24/Library/CloudStorage/OneDrive-Personal/PhD/Scramble/submission/prc_data/structural_variation/missing_variants.txt")
 
 theme_sv <-   theme_bw(base_size = 7, base_family = "Helvetica") +
   theme(strip.background = element_blank(),
@@ -29,6 +30,7 @@ theme_sv <-   theme_bw(base_size = 7, base_family = "Helvetica") +
 # read in all required files
 LINE1_gr <- read_tsv("./input_data/LINE1_nick_3mm.tsv") %>% mutate(start = nick_coordinates - 300, end = nick_coordinates + 300) %>% dplyr::select(chr, start, end) %>% GRanges()
 loxPsym_insertions <- read_tsv("./prc_data/insertions/loxPsym_insertions.tsv")
+sample_annotation <- read_tsv("./prc_data/sample_annotation.txt")
 
 C516_clonal <- filter(loxPsym_insertions, clone == "HAP1 loxPsym(301)", supp_reads > 5, AF > 0.5, chr %in% chr_list) %>% dplyr::select(chr, start, end) %>% mutate(start = start - 300, end = end + 300)
 F3_insertions <- filter(loxPsym_insertions, clone == "HEK293T loxPsym(638)", supp_reads > 3, AF  > 0.1, chr %in% chr_list) %>% dplyr::select(chr, start, end) %>% mutate(start = start - 300, end = end + 300)
@@ -112,6 +114,7 @@ C516R_PB_d17_BFP_nano <- read_nanomonsv("./prc_data/structural_variation/raw_var
 F3R_d15_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_d15.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_d15") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 F3R_d15b_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_d15b.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_d15b") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 F3R_d15c_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_d15c.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_d15c") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_d15d_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_d15d.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_d15d") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 F3R_d15_mn_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3_d15.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_d15_mn") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 
 # clones
@@ -121,15 +124,45 @@ C516R_c11_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C
 F3R_c6_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3_c6.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c6") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 F3R_c1t4_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c1t4.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c1t4") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 F3R_c5t8_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c5t8.nanomonsv.result.txt") %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c5t8") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
-C516RC_B4_1_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/B4_1.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c11") %>% find_rearrangements_nano()
+
+C516R_c6_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_c6.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c6") %>% find_rearrangements_nano()
+C516R_c7_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_c7.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c7") %>% find_rearrangements_nano()
+C516R_c8_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_c8.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c8") %>% find_rearrangements_nano()
+C516R_c9_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_c9.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c9") %>% find_rearrangements_nano()
+C516R_c10_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_c10.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c10_mn") %>% find_rearrangements_nano()
+C516R_c11_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_c11.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_c11_mn") %>% find_rearrangements_nano()
+
+C516R_G1_C22_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_C22.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_C22") %>% find_rearrangements_nano()
+C516R_G1_C91_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_C91.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_C91") %>% find_rearrangements_nano()
+C516R_G1_D61_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_D61.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_D61") %>% find_rearrangements_nano()
+C516R_G1_D21_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_D21.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_D21") %>% find_rearrangements_nano()
+
+C516R_G1_A71_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_A71.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_A71") %>% find_rearrangements_nano()
+C516R_G1_A31_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_A31.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_A31") %>% find_rearrangements_nano()
+C516R_G1_B41_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_B41.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_B41") %>% find_rearrangements_nano()
+C516R_G1_C31_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_C31.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_C31") %>% find_rearrangements_nano()
+C516R_G1_C32_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_C32.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_C32") %>% find_rearrangements_nano()
+
+C516R_G1_C72_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_C72.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_C72") %>% find_rearrangements_nano()
+C516R_G1_D22_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_D22.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_D22") %>% find_rearrangements_nano()
+C516R_G1_D101_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_D101.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_D101") %>% find_rearrangements_nano()
+C516R_G1_E12_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_E12.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_E12") %>% find_rearrangements_nano()
+C516R_G1_G32_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/C516R_G1_G32.nanomonsv.result.txt")  %>% mutate(cell_line = "HAP1", clone = "C516R", sample = "C516R_G1_G32") %>% find_rearrangements_nano()
+
+F3R_c1_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c1.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c1") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c4_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c4.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c4") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c5_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c5.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c5") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c10_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c10.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c15") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c11_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c11.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c11") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c12_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c12.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c12") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c13_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c13.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c13") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
+F3R_c15_nano <- read_nanomonsv("./prc_data/structural_variation/raw_variants/F3R_c15.nanomonsv.result.txt")  %>% mutate(cell_line = "HEK293T", clone = "HEK293T_F3R", sample = "F3R_c15") %>% find_rearrangements_nano(liftover_sites = F3_insertions)
 
 # ==== Part2 read in filtered variants, merge and perform final filtering ====
 
 # read in files
 depth_files <- read_tsv("./prc_data/depth_files/samples.txt", col_names = "file")
 rearrangement_files <- read_tsv("./prc_data/structural_variation/cre_induced/samples.txt", col_names = "file")
-depth_files_PB <- read_tsv("./prc_data/depth_files/samples_PB.txt", col_names = "file")
-rearrangement_files_PB <- read_tsv("./prc_data/structural_variation/cre_induced/samples_PB.txt", col_names = "file")
 
 read_depth <- function(files, path) {
   files <- mutate(files, path = paste0(path, file))
@@ -137,7 +170,7 @@ read_depth <- function(files, path) {
   
   for(i in 1:nrow(files)) {
     print(files$path[i])
-    data[[i]] = read_tsv(files$path[i], col_names = c("chr", "start", "end", "depth")) %>% mutate(sample = str_remove(files$file[i], ".bedgraph"))
+    data[[i]] = read_tsv(files$path[i], col_names = c("chr", "start", "end", "depth")) %>% mutate(filename = str_remove(files$file[i], ".bedgraph"))
   }
   
   names <- vector("character", length = length(data))
@@ -155,7 +188,7 @@ read_rearrangements <- function(files, path) {
   
   for(i in 1:nrow(files)) {
     print(files$path[i])
-    data[[i]] = read_tsv(files$path[i], col_types = c("c", "n", "c", "n", "n", "c", "c", "c", "c", "n", "n", "c", "c", "c", "c", "c", "c")) %>% mutate(sample = str_remove(files$file[i], ".tsv"))
+    data[[i]] = read_tsv(files$path[i], col_types = c("c", "n", "c", "n", "n", "c", "c", "c", "c", "n", "n", "c", "c", "c", "c", "c", "c")) %>% mutate(filename = str_remove(files$file[i], "_nano.tsv"))
   }
   
   names <- vector("character", length = length(data))
@@ -168,63 +201,61 @@ read_rearrangements <- function(files, path) {
   return(data)
 }
 
-depth <- read_depth(depth_files, path = "./prc_data/depth_files/") %>% bind_rows()
-rearrangements <- read_rearrangements(rearrangement_files, path = "./prc_data/structural_variation/cre_induced/") %>% bind_rows()
-
-depth_PB <- read_depth(depth_files_PB, path = "./prc_data/depth_files/") %>% bind_rows()
-rearrangements_PB <- read_rearrangements(rearrangement_files_PB, path = "./prc_data/structural_variation/cre_induced/") %>% bind_rows()
+depth <- read_depth(depth_files, path = "./prc_data/depth_files/") %>% bind_rows() %>% left_join(sample_annotation, by = "filename")
+rearrangements <- read_rearrangements(rearrangement_files, path = "./prc_data/structural_variation/cre_induced/") %>% bind_rows() %>% dplyr::select(-sample) %>% left_join(sample_annotation, by = "filename")
 
 # generate summary statistics and combine with coverages
-coverages_sample <- depth_PB %>%
-  group_by(sample) %>%
+coverages_filename <- depth %>%
+  group_by(filename) %>%
   summarise(coverage = sum(depth)/3300000000)
 
 coverages <- depth %>%
-  mutate(sample = str_remove(sample, "_mn|as")) %>%
-  mutate(sample = str_remove(sample, "[bc]$")) %>%
   group_by(sample) %>%
   summarise(coverage = sum(depth)/3300000000)
 
-coverages_PB <- depth_PB %>%
-  mutate(sample = str_remove(sample, "_mn|as")) %>%
-  mutate(sample = str_remove(sample, "[bc]$")) %>%
-  group_by(sample) %>%
+coverages_old <- depth_old %>%
+  group_by(filename) %>%
+  summarise(coverage = sum(depth)/3300000000)
+
+coverages_replicates <- depth %>%
+  group_by(sample, group) %>%
   summarise(coverage = sum(depth)/3300000000)
 
 # filter rearrangements by depth
 sv_filtered <- rearrangements %>% 
   mutate(sample = str_remove(sample, "_nano"), depth = ifelse(category == "Fold back", depth*2, depth)) %>%
-  left_join(coverages_sample) %>%
+  left_join(coverages_filename, by = "filename") %>%
   filter(depth < coverage * 5 | (chr == "chr15" & depth < coverage * 10)) %>% 
-  mutate(sample = str_remove(sample, "_mn|as")) %>%
-  mutate(sample = str_remove(sample, "[bc]$")) %>%
-  group_by(chr, start, chr_2, end, category, SVTYPE, cell_line, clone, sample) %>% # combine svs that are the same
+  group_by(chr, start, chr_2, end, category, SVTYPE, cell_line, arrest, timepoint, clone, sample) %>% # combine svs that are the same
   summarise(supp_reads = sum(supp_reads)) %>%
   left_join(coverages, by = "sample") %>%
+  mutate(SVLEN = ifelse(category %in% c("Translocation", "Fold back"), 0, end-start)) %>%
+  filter(!(timepoint == "clones" & supp_reads == 1 & category == "Fold back")) %>%
+  bind_rows(dplyr::select(missing_variants, -orientation))
+
+sv_filtered_replicate <- rearrangements %>% 
+  mutate(depth = ifelse(category == "Fold back", depth*2, depth)) %>%
+  left_join(coverages_filename, by = "filename") %>%
+  filter(depth < coverage * 5 | (chr == "chr15" & depth < coverage * 10)) %>% 
+  group_by(chr, start, chr_2, end, category, SVTYPE, cell_line, clone, sample, group, timepoint, replicate, arrest) %>% # combine svs that are the same
+  summarise(supp_reads = sum(supp_reads)) %>%
+  left_join(coverages_replicates,  by = c("sample", "group")) %>%
   mutate(SVLEN = ifelse(category %in% c("Translocation", "Fold back"), 0, end-start))
 
-sv_filtered_PB <- rearrangements_PB %>% 
-  mutate(sample = str_remove(sample, "_nano"), depth = ifelse(category == "Fold back", depth*2, depth)) %>%
-  left_join(coverages_sample) %>%
-  filter(depth < coverage * 5 | (chr == "chr15" & depth < coverage * 10)) %>% 
-  mutate(sample = str_remove(sample, "_mn|as")) %>%
-  mutate(sample = str_remove(sample, "[bc]$")) %>%
-  group_by(chr, start, chr_2, end, category, SVTYPE, cell_line, clone, sample) %>% # combine svs that are the same
-  summarise(supp_reads = sum(supp_reads)) %>%
-  left_join(coverages_PB, by = "sample") %>%
-  mutate(SVLEN = ifelse(category %in% c("Translocation", "Fold back"), 0, end-start))
 
 write_tsv(sv_filtered, "./prc_data/structural_variation/filtered_variants/sv_filtered.tsv")
-write_tsv(sv_filtered_PB, "./prc_data/structural_variation/filtered_variants/sv_filtered_PB.tsv")
 
 # generate early and late sets
-rearrangements_early <- filter(sv_filtered, sample %in% c("F3R_d1", "C516_d1")) %>% mutate(timepoint = "early")
-rearrangements_late_pool <- filter(sv_filtered, sample %in% c("C516_d14", "C516R_d13", "F3R_d15")) %>% mutate(timepoint = "late")
-rearrangements_clones <- filter(sv_filtered, sample %in% c("C516R_c1t6", "C516R_c7t12", "C516R_c11", "F3R_c1t4", "F3R_c5t8", "F3R_c6")) %>% mutate(timepoint = "late")
+rearrangements_early <- filter(sv_filtered, timepoint == "early")
+rearrangements_late_pool <- filter(sv_filtered, timepoint == "late")
+rearrangements_clones <- filter(sv_filtered, timepoint == "clones")
 rearrangements_late <- bind_rows(rearrangements_late_pool, mutate(rearrangements_clones, supp_reads = 1))
 
 write_tsv(rearrangements_late_pool, "./prc_data/structural_variation/filtered_variants/late_pool_rearrangements.tsv")
 write_tsv(rearrangements_early, "./prc_data/structural_variation/filtered_variants/early_rearrangements.tsv")
 write_tsv(rearrangements_clones, "./prc_data/structural_variation/filtered_variants/clones_rearrangements.tsv")
 write_tsv(rearrangements_late, "./prc_data/structural_variation/filtered_variants/late_rearrangements.tsv")
+
+ungroup(rearrangements_early) %>% filter(clone == "C516", category %in% c("Deletion", "Inversion")) %>% dplyr::select(chr, start, chr_2, end, SVLEN, category, SVTYPE, supp_reads, clone, sample) %>% write_tsv("./prc_data/structural_variation/filtered_variants/early_rearrangements_thomas.tsv")
+ungroup(rearrangements_late) %>% filter(cell_line == "HAP1", category %in% c("Deletion", "Inversion")) %>%  dplyr::select(chr, start, chr_2, end, SVLEN, category, SVTYPE, supp_reads, clone, sample) %>% write_tsv("./prc_data/structural_variation/filtered_variants/late_rearrangements_thomas.tsv")
 

@@ -1,0 +1,13 @@
+transf_day0_R1_S15_L001_R1_001.fastq.gz
+transf_day11_R1_S25_L001_R1_001.fastq.gz
+transf_day11_R2_S26_L001_R1_001.fastq.gz
+transf_day11_R3_S27_L001_R1_001.fastq.gz
+transf_day3_R1_S16_L001_R1_001.fastq.gz
+transf_day3_R2_S17_L001_R1_001.fastq.gz
+transf_day3_R3_S18_L001_R1_001.fastq.gz
+transf_day7_R1_S19_L001_R1_001.fastq.gz
+transf_day7_R2_S20_L001_R1_001.fastq.gz
+transf_day7_R3_S21_L001_R1_001.fastq.gz
+transf_day9_R1_S22_L001_R1_001.fastq.gz
+transf_day9_R2_S23_L001_R1_001.fastq.gz
+transf_day9_R3_S24_L001_R1_001.fastq.gz

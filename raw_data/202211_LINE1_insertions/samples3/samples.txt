@@ -1,0 +1,2 @@
+c12_day25_R1_S36_L001_R1_001.fastq.gz
+c12_day25_R2_S37_L001_R1_001.fastq.gz
