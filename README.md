@@ -9,3 +9,4 @@ This repository contains:
 (5) The input data necessary to run R scripts ./input_data/  
 (6) Filtered variant calls used in Figures 3-5 of the manuscript ./prc_data/structural_variants/filtered_variants 
 (7) R scripts used to analyze amplicon sequencing of LINE-1 and HERVs with loxPsym insertions
+(8) R scripts used to analyze RNA-sequencing data
